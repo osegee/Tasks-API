@@ -3,6 +3,7 @@ import "dotenv/config";
 import morgan from "morgan";
 
 const app = express();
+app.use(express.json());
 app.use(morgan("dev"));
 
 const tasks = [
@@ -32,6 +33,26 @@ app.get("/tasks/:id", (req, res) => {
   }
 
   res.json(task);
+});
+
+app.post("/tasks", (req, res) => {
+  const { title } = req.body;
+
+  if (!title) {
+    return res.status(400).json("title is required");
+  }
+
+  const newTask = {
+    id: tasks.length + 1,
+    title: title,
+    done: false,
+  };
+  tasks.push(newTask);
+
+  res.status(201).json({
+    message: "Created",
+    newTask,
+  });
 });
 
 const PORT = process.env.PORT || 3000;
