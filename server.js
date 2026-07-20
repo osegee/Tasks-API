@@ -6,7 +6,11 @@ const app = express();
 app.use(morgan("dev"));
 
 app.get("/", (req, res) => {
-  res.send("Hello Server");
+  res.json({ name: "Task API", version: "1.0", endpoints: ["/tasks"] });
+});
+
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
 });
 
 const PORT = process.env.PORT || 3000;
