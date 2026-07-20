@@ -36,7 +36,7 @@ app.get("/tasks/:id", (req, res) => {
 });
 
 app.post("/tasks", (req, res) => {
-  const { title } = req.body;
+  const { title, done } = req.body;
 
   if (!title) {
     return res.status(400).json("title is required");
@@ -45,7 +45,7 @@ app.post("/tasks", (req, res) => {
   const newTask = {
     id: tasks.length + 1,
     title: title,
-    done: false,
+    done: done ?? false,
   };
   tasks.push(newTask);
 
@@ -53,6 +53,33 @@ app.post("/tasks", (req, res) => {
     message: "Created",
     newTask,
   });
+});
+
+app.put("/tasks/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+  const { title, done } = req.body;
+
+  const task = tasks.find((task) => task.id === id);
+  if (!task) {
+    return res.status(404).json({ error: `Task ${id} not found` });
+  }
+
+  task.title = title;
+  task.done = done;
+
+  res.json({ message: "Updated", task });
+});
+
+app.delete("/tasks/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+
+  const taskIndex = tasks.findIndex((task) => task.id === id);
+  if (taskIndex === -1) {
+    return res.status(404).json({ error: `Task ${id} not found` });
+  }
+
+  tasks.splice(taskIndex, 1);
+  res.status(204).json({ message: "Deleted" });
 });
 
 const PORT = process.env.PORT || 3000;
