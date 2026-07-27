@@ -1,10 +1,8 @@
 import express from "express";
-
-import swaggerUi from "swagger-ui-express";
-import swaggerDocument from "./openapi.json" with { type: "json" };
-
 import "dotenv/config";
 import morgan from "morgan";
+import swaggerUi from "swagger-ui-express";
+import swaggerDocument from "./openapi.json" with { type: "json" };
 
 const app = express();
 app.use(express.json());
