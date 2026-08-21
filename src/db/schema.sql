@@ -4,5 +4,3 @@ CREATE TABLE IF NOT EXISTS tasks(
     title VARCHAR(225) NOT NULL,
     done BOOLEAN NOT NULL DEFAULT FALSE
 );
-
-INSERT INTO tasks (title, done) VALUES ('Buy groceries', false), ('Clean the kitchen', false), ('Fix broken chair', true);
