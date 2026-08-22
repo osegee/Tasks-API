@@ -1,30 +1,18 @@
-import express from "express";
-import "dotenv/config";
-import morgan from "morgan";
-import swaggerUi from "swagger-ui-express";
-import swaggerDocument from "./openapi.json" with { type: "json" };
-import { pool, connectDB } from "./src/config/db.js";
+import { pool } from "../config/db.js";
 
-const app = express();
-app.use(express.json());
-app.use(morgan("dev"));
+const getAllTasks = async (req, res) => {
+  try {
+    const result = await pool.query(`SELECT * FROM tasks`);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "internal server error" });
+  }
+};
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-app.get("/", (req, res) => {
-  res.json({ name: "Task API", version: "1.0", endpoints: ["/tasks"] });
-});
-
-app.get("/health", (req, res) => {
-  res.json({ status: "ok" });
-});
-
-app.get("/tasks", async (req, res) => {
-  const result = await pool.query(`SELECT * FROM tasks`);
-  res.status(200).json(result.rows);
-});
-
-app.get("/tasks/:id", async (req, res) => {
+const getOneTask = async (req, res) => {
   const id = parseInt(req.params.id);
 
   const task = await pool.query(`SELECT * FROM tasks WHERE id = $1`, [id]);
@@ -32,9 +20,9 @@ app.get("/tasks/:id", async (req, res) => {
     return res.status(404).json({ error: `Task ${id} not found` });
   }
   res.status(200).json(task.rows);
-});
+};
 
-app.post("/tasks", async (req, res) => {
+const createTask = async (req, res) => {
   const { title, done } = req.body;
 
   if (!title) {
@@ -49,9 +37,9 @@ app.post("/tasks", async (req, res) => {
     message: "Created",
     task: newTask.rows[0],
   });
-});
+};
 
-app.put("/tasks/:id", async (req, res) => {
+const updateTask = async (req, res) => {
   const id = parseInt(req.params.id);
   const { title, done } = req.body;
 
@@ -64,9 +52,9 @@ app.put("/tasks/:id", async (req, res) => {
   }
 
   res.json({ message: "Updated", task: result.rows[0] });
-});
+};
 
-app.delete("/tasks/:id", async (req, res) => {
+const deleteTask = async (req, res) => {
   const id = parseInt(req.params.id);
 
   const result = await pool.query(
@@ -77,10 +65,6 @@ app.delete("/tasks/:id", async (req, res) => {
     return res.status(404).json({ error: `Task ${id} not found` });
   }
   return res.status(204).json({ message: "Deleted" });
-});
+};
 
-connectDB();
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+export { getAllTasks, getOneTask, createTask, updateTask, deleteTask };
